@@ -1,8 +1,8 @@
 {
   "author": "David Oliveira <d.oliveira@prozone.org>",
   "name": "jscrap",
-  "description": "A very easy-to-use web scrapper",
-  "version": "0.0.2",
+  "description": "A very easy-to-use and lightweight web scrapper",
+  "version": "0.0.3",
   "repository": {
     "type": "git",
     "url": "https://github.com/davidfoliveira/node-jscrap/"
@@ -24,6 +24,9 @@
     "web",
     "page",
     "scrap",
-    "scraper"
+    "scraper",
+    "scraping",
+    "css",
+    "selectors"
   ]
 }
