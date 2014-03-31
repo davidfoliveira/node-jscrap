@@ -14,7 +14,8 @@ exports.scrap = function(url_or_data,opts,handler) {
 		args = Array.prototype.slice.call(arguments, 0),
 		data = url_or_data,
 		pHandler,
-		parser;
+		parser,
+		pstart;
 
 	url_or_data = args.shift() || null;
 	handler = args.pop()       || null;
@@ -39,11 +40,22 @@ exports.scrap = function(url_or_data,opts,handler) {
 				return handler(err,null,res);
 
 			// Parse
+			pstart = new Date();
 			pHandler = new htmlparser.DefaultHandler(function(err,doc){
+				if ( opts && opts.debug )
+					console.log("HTML Parse: took "+(new Date()-pstart)+" ms");
+
+				if ( err )
+					return handler(err,null);
 
 				// Initialize document with ZCSEL and return it
-				return (err ? handler(err,null) : handler(null,zcsel.initDom(doc)));
+				var
+					istart = new Date(),
+					$ = zcsel.initDom(doc);
+				if ( opts && opts.debug )
+					console.log("ZCSel Init: took "+(new Date()-istart)+" ms");
 
+				return handler(null,$);
 			});
 			parser = new htmlparser.Parser(pHandler);
 			return parser.parseComplete(data);
@@ -58,7 +70,8 @@ exports._get = function(url,opts,handler) {
 		args = Array.prototype.slice.call(arguments, 0),
 		httpMod,
 		zipDecoder,
-		content = "";
+		content = "",
+		start = new Date();
 
 	url = args.shift()    || null;
 	handler = args.pop()  || null;
@@ -97,6 +110,8 @@ exports._get = function(url,opts,handler) {
 		(zipDecoder || res).setEncoding(opts.charsetEncoding || "utf-8");
 		(zipDecoder || res).on('data',function(d){ content += d.toString(); });
 		(zipDecoder || res).on('end',function(){
+			if ( opts.debug )
+				console.log("HTTP GET: took "+(new Date()-start)+" ms");
 			return handler(null,content,res);
 		});
 	})
