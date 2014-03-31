@@ -1,0 +1,29 @@
+{
+  "author": "David Oliveira <d.oliveira@prozone.org>",
+  "name": "jscrap",
+  "description": "A very easy-to-use web scrapper",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davidfoliveira/node-jscrap/"
+  },
+  "main": "./jscrap.js",
+  "bin": { },
+  "dependencies": {
+    "htmlparser":">=1.7.7",
+    "zcsel":">=0.1.0"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "license": "Copyleft",
+  "engines": {
+    "node": ">=0.10.5"
+  },
+  "keywords": [
+    "html",
+    "web",
+    "page",
+    "scrap",
+    "scraper"
+  ]
+}
