@@ -71,7 +71,8 @@ exports._get = function(url,opts,handler) {
 		httpMod,
 		zipDecoder,
 		content = "",
-		start = new Date();
+		start = new Date(),
+		reqURL;
 
 	url = args.shift()    || null;
 	handler = args.pop()  || null;
@@ -80,6 +81,9 @@ exports._get = function(url,opts,handler) {
 		throw new Error("No URL to GET");
 	if ( !handler )
 		throw new Error("No callback");
+	reqURL = require('url').parse(url);
+	if ( opts.headers )
+		reqURL.headers = opts.headers;
 
 	// GET
 	httpMod = url.match(/^https:/) ? https : http;
