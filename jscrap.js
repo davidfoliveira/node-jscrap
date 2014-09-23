@@ -87,7 +87,7 @@ exports._get = function(url,opts,handler) {
 
 	// GET
 	httpMod = url.match(/^https:/) ? https : http;
-	httpMod.get(url,function(res){
+	httpMod.get(reqURL,function(res){
 		if ( res.statusCode > 400 )
 			return handler(new Error("Got HTTP status code "+res.statusCode),null,res);
 		if ( res.statusCode >= 300 && res.statusCode < 400 ) {
