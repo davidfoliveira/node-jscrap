@@ -72,6 +72,7 @@ exports._get = function(url,opts,handler) {
 		zipDecoder,
 		content = "",
 		start = new Date(),
+		timeout = null,
 		reqURL;
 
 	url = args.shift()    || null;
@@ -85,17 +86,32 @@ exports._get = function(url,opts,handler) {
 	if ( opts.headers )
 		reqURL.headers = opts.headers;
 
+	// Create a pseudo callback which destroys herself after being used
+	var _handler = function(err,data,res){
+		_handler = function(){};
+		if ( timeout )
+			clearTimeout(timeout);
+		handler(err,data,res);
+	};
+
+	// Timeout ? Start counting..
+	if ( opts.timeout ) {
+		timeout = setTimeout(function(){
+			_handler(new Error("HTTP request timeout after "+opts.timeout+" ms"),null,null);
+		},opts.timeout);
+	}
+
 	// GET
 	httpMod = url.match(/^https:/) ? https : http;
-	httpMod.get(reqURL,function(res){
+	var req = httpMod.get(reqURL,function(res){
 		if ( res.statusCode > 400 )
-			return handler(new Error("Got HTTP status code "+res.statusCode),null,res);
+			return _handler(new Error("Got HTTP status code "+res.statusCode),null,res);
 		if ( res.statusCode >= 300 && res.statusCode < 400 ) {
 			if ( res.headers['location'] != null && res.headers['location'].match(/^https?:\/\/.+/) && opts.followRedirects ) {
 				opts.followRedirects--;
-				return exports._get(res.headers['location'],handler);
+				return exports._get(res.headers['location'],_handler);
 			}
-			return handler(new Error("Found redirect without Location header"),null,res);
+			return _handler(new Error("Found redirect without Location header"),null,res);
 		}
 
 		// Watch content encoding
@@ -106,7 +122,7 @@ exports._get = function(url,opts,handler) {
 			else if ( enc == "deflate" )
 				zipDecoder = zlib.createInflate();
 			else
-				return handler(new Error("Unsupported document encoding '"+enc+"'"),null);
+				return _handler(new Error("Unsupported document encoding '"+enc+"'"),null);
 			res.pipe(zipDecoder);
 		}
 
@@ -116,11 +132,11 @@ exports._get = function(url,opts,handler) {
 		(zipDecoder || res).on('end',function(){
 			if ( opts.debug )
 				console.log("HTTP GET: took "+(new Date()-start)+" ms");
-			return handler(null,content,res);
+			return _handler(null,content,res);
 		});
 	})
 	.on('error',function(err){
-		return handler(err,null,null);
+		return _handler(err,null,null);
 	});
 
 };
