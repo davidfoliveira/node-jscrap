@@ -26,5 +26,7 @@ Watch out [zcsel](https://www.npmjs.org/package/zcsel) documentation.
 The `scrap()` function supports these options:
 
 `debug` : Activates the debug mode. Defaults to `false`.
+
 `followRedirects` : Number of redirects to follow. Defaults to `3`.
+
 `charsetEncoding` : Document charset. Default to `utf-8`.
