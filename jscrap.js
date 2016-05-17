@@ -46,7 +46,7 @@ exports.scrap = function(url_or_data,opts,handler) {
 					console.log("HTML Parse: took "+(new Date()-pstart)+" ms");
 
 				if ( err )
-					return handler(err,null);
+					return handler(err,null,res);
 
 				// Initialize document with ZCSEL and return it
 				var
@@ -55,7 +55,7 @@ exports.scrap = function(url_or_data,opts,handler) {
 				if ( opts && opts.debug )
 					console.log("ZCSel Init: took "+(new Date()-istart)+" ms");
 
-				return handler(null,$);
+				return handler(null,$,res);
 			});
 			parser = new htmlparser.Parser(pHandler);
 			return parser.parseComplete(data);
