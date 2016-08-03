@@ -105,7 +105,7 @@ exports._get = function(url,opts,handler) {
 	httpMod = url.match(/^https:/) ? https : http;
 	var req = httpMod.get(reqURL,function(res){
 		if ( res.statusCode > 400 )
-			return _handler(new Error("Got HTTP status code "+res.statusCode+" on "+req.url),null,res);
+			return _handler(new Error("Got HTTP status code "+res.statusCode+" on "+url),null,res);
 		if ( res.statusCode >= 300 && res.statusCode < 400 ) {
 			if ( res.headers['location'] != null && res.headers['location'].toString().replace(/^[\s\r\n]*|[\s\r\n]*$/g,"") && opts.followRedirects ) {
 				opts.followRedirects--;
