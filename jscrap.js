@@ -110,7 +110,7 @@ exports._get = function(url,opts,handler) {
 			if ( res.headers['location'] != null && res.headers['location'].toString().replace(/^[\s\r\n]*|[\s\r\n]*$/g,"") && opts.followRedirects ) {
 				opts.followRedirects--;
 				res.headers['location'] = require('url').resolve(reqURL,res.headers['location'].toString());
-				return exports._get(res.headers['location'],_handler);
+				return exports._get(res.headers['location'],opts,_handler);
 			}
 			return _handler(new Error("Found redirect without Location header"),null,res);
 		}
