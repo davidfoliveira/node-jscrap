@@ -64,7 +64,7 @@ exports.scrap = function(url_or_data,opts,handler) {
 
 };
 
-exports._get = function(url,opts,handler) {
+exports._get = function(url, opts, handler) {
 
 	var
 		args = Array.prototype.slice.call(arguments, 0),
@@ -72,19 +72,25 @@ exports._get = function(url,opts,handler) {
 		zipDecoder,
 		content = "",
 		start = new Date(),
-		timeout = null,
-		reqURL;
+		timeout = null;
 
 	url = args.shift()    || null;
 	handler = args.pop()  || null;
 	opts = args.shift()   || { followRedirects: 3, charsetEncoding: "utf-8" };
+
+	// Validation
 	if ( !url )
 		throw new Error("No URL to GET");
 	if ( !handler )
 		throw new Error("No callback");
-	reqURL = require('url').parse(url);
-	if ( opts.headers )
-		reqURL.headers = opts.headers;
+
+	// Auto-complete/normalize
+	if (typeof(url) == 'string') {
+		url = require('url').parse(url);
+	}
+	if (opts.headers) {
+		url.headers = opts.headers;
+	}
 
 	// Create a pseudo callback which destroys herself after being used
 	var _handler = function(err,data,res){
@@ -102,21 +108,22 @@ exports._get = function(url,opts,handler) {
 	}
 
 	// GET
-	httpMod = url.match(/^https:/) ? https : http;
-	var req = httpMod.get(reqURL,function(res){
+	httpMod = url.protocol.match(/^https:/) ? https : http;
+	var req = httpMod.get(url, function(res){
 		if ( res.statusCode > 400 )
 			return _handler(new Error("Got HTTP status code "+res.statusCode+" on "+url),null,res);
-		if ( res.statusCode >= 300 && res.statusCode < 400 ) {
-			if ( res.headers['location'] != null && res.headers['location'].toString().replace(/^[\s\r\n]*|[\s\r\n]*$/g,"") && opts.followRedirects ) {
+		if (res.statusCode >= 300 && res.statusCode < 400) {
+			if (res.headers['location'] && res.headers['location'].replace(/^[\s\r\n]*|[\s\r\n]*$/g,"") && opts.followRedirects) {
+				var location = require('url').resolve(url, res.headers['location']);
+				res.headers.location = location;
 				opts.followRedirects--;
-				res.headers['location'] = require('url').resolve(reqURL,res.headers['location'].toString());
-				return exports._get(res.headers['location'],opts,_handler);
+				return exports._get(location, opts, _handler);
 			}
-			return _handler(new Error("Found redirect without Location header"),null,res);
+			return _handler(new Error("Found redirect without Location header"), null, res);
 		}
 
 		// Watch content encoding
-		if ( res.headers['content-encoding'] ) {
+		if (res.headers['content-encoding']) {
 			var enc = res.headers['content-encoding'].toString().toLowerCase().replace(/^\s*|\s*$/g,"");
 			if ( enc == "gzip" )
 				zipDecoder = zlib.createGunzip();

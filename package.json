@@ -2,7 +2,7 @@
   "author": "David Oliveira <d.oliveira@prozone.org>",
   "name": "jscrap",
   "description": "A very easy-to-use and lightweight web scrapper",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "repository": {
     "type": "git",
     "url": "https://github.com/davidfoliveira/node-jscrap/"
@@ -18,6 +18,9 @@
   "license": "Copyleft",
   "engines": {
     "node": ">=0.10.5"
+  },
+  "scripts": {
+    "test": "node test/*"
   },
   "keywords": [
     "html",
